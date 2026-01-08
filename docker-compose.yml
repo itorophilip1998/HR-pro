@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: hr-pro-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hr_pro
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: hr-pro-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hr-pro-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/hr_pro?schema=public
+      PORT: 8001
+      SUPPORT_EMAIL: "support@rosievision.ai"
+      SMTP_HOST: "smtp.office365.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "no-reply@av-worx.com"
+      SMTP_PASSWORD: "K^707000463155af"
+      SMTP_SENDER: "no-reply@rosievision.ai"
+      SMTP_REPLY_TO: "itadmin@ar-worx.com"
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hr-pro-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8001
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
