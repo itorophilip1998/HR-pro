@@ -18,7 +18,7 @@ interface ProfileDropdownProps {
 
 export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
@@ -32,49 +32,59 @@ export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdo
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      
       // Calculate dropdown position
-      if (buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect();
-        const dropdownWidth = 320; // w-80 = 320px
-        const dropdownHeight = 300; // approximate height
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const scrollY = window.scrollY;
-        
-        let right = viewportWidth - rect.right;
-        // Always try to position above the button first
-        let top = rect.top - dropdownHeight - 8;
-        
-        // If not enough space above, try to position it higher up on the screen
-        if (top < 16) {
-          // Try positioning it near the top of the viewport, aligned with button's right edge
-          top = Math.max(16, rect.top - dropdownHeight + rect.height);
-          // If still not enough space, position below
-          if (top < 16 || top + dropdownHeight > viewportHeight) {
+      const calculatePosition = () => {
+        if (buttonRef.current) {
+          const rect = buttonRef.current.getBoundingClientRect();
+          const dropdownWidth = 320; // w-80 = 320px
+          const dropdownHeight = 300; // approximate height
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          
+          let right = viewportWidth - rect.right;
+          // Try to position above the button first
+          let top = rect.top - dropdownHeight - 8;
+          
+          // If not enough space above, position below
+          if (top < 16) {
             top = rect.bottom + 8;
           }
-        }
-        
-        // Adjust if dropdown would go off right edge - shift it left
-        if (right < 16) {
-          right = viewportWidth - rect.left - dropdownWidth;
-          // If still off screen, align to right edge with padding
+          
+          // Adjust if dropdown would go off right edge - shift it left
           if (right < 16) {
-            right = 16;
+            right = viewportWidth - rect.left - dropdownWidth;
+            // If still off screen, align to right edge with padding
+            if (right < 16) {
+              right = 16;
+            }
           }
+          
+          // Adjust if dropdown would go off bottom edge - move it up
+          if (top + dropdownHeight > viewportHeight - 16) {
+            top = Math.max(16, viewportHeight - dropdownHeight - 16);
+          }
+          
+          // Ensure minimum spacing from edges
+          right = Math.max(16, Math.min(right, viewportWidth - dropdownWidth - 16));
+          top = Math.max(16, Math.min(top, viewportHeight - dropdownHeight - 16));
+          
+          setDropdownPosition({ top, right });
+        } else {
+          // Fallback position if button ref is not available
+          setDropdownPosition({ top: 80, right: 16 });
         }
-        
-        // Adjust if dropdown would go off bottom edge - move it up
-        if (top + dropdownHeight > viewportHeight - 16) {
-          top = Math.max(16, viewportHeight - dropdownHeight - 16);
-        }
-        
-        // Ensure minimum spacing from edges
-        right = Math.max(16, Math.min(right, viewportWidth - dropdownWidth - 16));
-        top = Math.max(16, Math.min(top, viewportHeight - dropdownHeight - 16));
-        
-        setDropdownPosition({ top, right });
-      }
+      };
+      
+      // Calculate position immediately
+      calculatePosition();
+      
+      // Also recalculate on next frame to ensure accuracy
+      const timeoutId = setTimeout(() => {
+        calculatePosition();
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
     }
 
     return () => {
@@ -142,19 +152,20 @@ export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdo
               style={{ zIndex: 99998 }}
               onClick={() => setIsOpen(false)}
             />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                position: 'fixed',
-                top: `${dropdownPosition.top}px`,
-                right: `${dropdownPosition.right}px`,
-                zIndex: 99999,
-              }}
-              className="w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
-            >
+            {dropdownPosition && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  position: 'fixed',
+                  top: `${dropdownPosition.top}px`,
+                  right: `${dropdownPosition.right}px`,
+                  zIndex: 99999,
+                }}
+                className="w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+              >
               {/* Profile Header */}
               <div className="bg-gradient-to-r from-purple-700 to-purple-900 p-6">
                 <div className="flex items-center gap-4">
@@ -203,7 +214,8 @@ export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdo
                   <span className="font-medium">Logout</span>
                 </motion.button>
               </div>
-            </motion.div>
+              </motion.div>
+            )}
           </>
         )}
       </AnimatePresence>
