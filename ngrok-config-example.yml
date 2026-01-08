@@ -1,0 +1,24 @@
+# Ngrok Configuration Example
+# For permanent/static domain, you need ngrok paid plan
+# 
+# To use this config:
+# 1. Copy this file to ~/.ngrok2/ngrok.yml (or ~/Library/Application Support/ngrok/ngrok.yml on macOS)
+# 2. Replace YOUR_DOMAIN with your reserved ngrok domain
+# 3. Replace YOUR_AUTHTOKEN with your ngrok authtoken
+#
+# Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken
+# Reserve a domain from: https://dashboard.ngrok.com/cloud-edge/domains
+
+version: "2"
+authtoken: YOUR_AUTHTOKEN
+
+tunnels:
+  hr-pro-frontend:
+    proto: http
+    addr: 3001
+    domain: YOUR_DOMAIN.ngrok-free.app  # Replace with your reserved domain
+    inspect: true
+
+# To start with this config:
+# ngrok start hr-pro-frontend
+

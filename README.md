@@ -34,6 +34,28 @@ docker-compose up -d --build
   - Email: admin@admin.com
   - Password: admin
 
+### Expose Frontend with ngrok (Public URL)
+
+To expose the frontend on a public URL using ngrok:
+
+```bash
+./start-ngrok.sh
+```
+
+This will start an ngrok tunnel for `localhost:3001` and display a public URL.
+
+**Note**: 
+- Free ngrok URLs change each time you restart ngrok
+- For a permanent/static domain, you need an ngrok paid plan with a reserved domain
+- The ngrok web interface is available at http://localhost:4040
+
+**For a permanent link** (requires ngrok paid plan):
+1. Sign up for ngrok: https://dashboard.ngrok.com/signup
+2. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken
+3. Configure ngrok: `ngrok config add-authtoken YOUR_TOKEN`
+4. Reserve a domain: https://dashboard.ngrok.com/cloud-edge/domains
+5. Update `start-ngrok.sh` or use: `ngrok http 3001 --domain=your-domain.ngrok-free.app`
+
 ### Default Account Credentials
 
 A default admin account is automatically created when you first start the application:
