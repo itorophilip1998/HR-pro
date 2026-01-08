@@ -130,7 +130,7 @@ export default function SignupPage() {
   const getPasswordStrengthColor = () => {
     if (passwordStrength <= 2) return "bg-red-500";
     if (passwordStrength <= 3) return "bg-yellow-500";
-    return "bg-green-500";
+    return "bg-gradient-to-r from-purple-600 to-purple-800";
   };
 
   const containerVariants = {
@@ -156,7 +156,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-white">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 overflow-hidden opacity-5">
         <motion.div

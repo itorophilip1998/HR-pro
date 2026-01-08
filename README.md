@@ -36,6 +36,8 @@ docker-compose up -d --build
 
 ### Expose Frontend with ngrok (Public URL)
 
+#### Temporary URL (Free - Changes on restart)
+
 To expose the frontend on a public URL using ngrok:
 
 ```bash
@@ -44,17 +46,44 @@ To expose the frontend on a public URL using ngrok:
 
 This will start an ngrok tunnel for `localhost:3001` and display a public URL.
 
-**Note**: 
-- Free ngrok URLs change each time you restart ngrok
-- For a permanent/static domain, you need an ngrok paid plan with a reserved domain
-- The ngrok web interface is available at http://localhost:4040
+**Note**: Free ngrok URLs change each time you restart ngrok.
 
-**For a permanent link** (requires ngrok paid plan):
-1. Sign up for ngrok: https://dashboard.ngrok.com/signup
-2. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken
-3. Configure ngrok: `ngrok config add-authtoken YOUR_TOKEN`
-4. Reserve a domain: https://dashboard.ngrok.com/cloud-edge/domains
-5. Update `start-ngrok.sh` or use: `ngrok http 3001 --domain=your-domain.ngrok-free.app`
+#### Permanent URL (Requires Reserved Domain)
+
+For a permanent/static domain that doesn't change:
+
+**Option 1: Interactive Setup**
+```bash
+./setup-permanent-ngrok.sh
+```
+Follow the prompts to enter your reserved domain.
+
+**Option 2: Manual Setup**
+1. Reserve a domain: https://dashboard.ngrok.com/cloud-edge/domains
+   - Free plan: Get a free domain like `your-name.ngrok-free.app`
+   - Paid plan ($8/month): Reserve a custom domain
+2. Run the setup script:
+   ```bash
+   ./setup-permanent-ngrok.sh
+   ```
+3. Enter your reserved domain when prompted
+4. Start ngrok with permanent domain:
+   ```bash
+   ./start-ngrok-permanent.sh
+   ```
+
+**Quick Start with Permanent Domain:**
+```bash
+# Set up permanent domain (first time only)
+./setup-permanent-ngrok.sh
+
+# Start ngrok with permanent domain
+./start-ngrok-permanent.sh
+```
+
+**Note**: 
+- The ngrok web interface is available at http://localhost:4040
+- Your permanent URL will be: `https://your-domain.ngrok-free.app`
 
 ### Default Account Credentials
 

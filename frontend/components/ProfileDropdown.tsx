@@ -18,7 +18,9 @@ interface ProfileDropdownProps {
 
 export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -30,6 +32,49 @@ export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdo
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      // Calculate dropdown position
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const dropdownWidth = 320; // w-80 = 320px
+        const dropdownHeight = 300; // approximate height
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const scrollY = window.scrollY;
+        
+        let right = viewportWidth - rect.right;
+        // Always try to position above the button first
+        let top = rect.top - dropdownHeight - 8;
+        
+        // If not enough space above, try to position it higher up on the screen
+        if (top < 16) {
+          // Try positioning it near the top of the viewport, aligned with button's right edge
+          top = Math.max(16, rect.top - dropdownHeight + rect.height);
+          // If still not enough space, position below
+          if (top < 16 || top + dropdownHeight > viewportHeight) {
+            top = rect.bottom + 8;
+          }
+        }
+        
+        // Adjust if dropdown would go off right edge - shift it left
+        if (right < 16) {
+          right = viewportWidth - rect.left - dropdownWidth;
+          // If still off screen, align to right edge with padding
+          if (right < 16) {
+            right = 16;
+          }
+        }
+        
+        // Adjust if dropdown would go off bottom edge - move it up
+        if (top + dropdownHeight > viewportHeight - 16) {
+          top = Math.max(16, viewportHeight - dropdownHeight - 16);
+        }
+        
+        // Ensure minimum spacing from edges
+        right = Math.max(16, Math.min(right, viewportWidth - dropdownWidth - 16));
+        top = Math.max(16, Math.min(top, viewportHeight - dropdownHeight - 16));
+        
+        setDropdownPosition({ top, right });
+      }
     }
 
     return () => {
@@ -60,6 +105,7 @@ export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdo
   return (
     <div className="relative" ref={dropdownRef}>
       <motion.button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -92,7 +138,8 @@ export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdo
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9998]"
+              className="fixed inset-0"
+              style={{ zIndex: 99998 }}
               onClick={() => setIsOpen(false)}
             />
             <motion.div
@@ -100,7 +147,13 @@ export default function ProfileDropdown({ user, onShowShortcuts }: ProfileDropdo
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-[9999] overflow-hidden"
+              style={{
+                position: 'fixed',
+                top: `${dropdownPosition.top}px`,
+                right: `${dropdownPosition.right}px`,
+                zIndex: 99999,
+              }}
+              className="w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
             >
               {/* Profile Header */}
               <div className="bg-gradient-to-r from-purple-700 to-purple-900 p-6">
