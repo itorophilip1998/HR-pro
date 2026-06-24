@@ -12,7 +12,7 @@ Hr-Pro is a full-stack web application following a client-server architecture wi
 │  (Client)   │◀────────│  (Frontend)  │◀────────│  (Backend)   │
 └─────────────┘         └─────────────┘         └─────────────┘
                                                          │
-                                                         ▼
+                                                         ▼     
                                                 ┌─────────────┐
                                                 │ PostgreSQL   │
                                                 │  (Database)  │
