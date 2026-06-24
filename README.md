@@ -5,7 +5,7 @@ A full-stack project management dashboard application built with NestJS and Next
 ## 🚀 Quick Start
 
 ### Prerequisites
-
+     
 - Docker Desktop installed and running
 - Docker Compose installed
 
