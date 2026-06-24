@@ -28,6 +28,6 @@ RUN chmod +x docker-entrypoint.sh && \
 # Expose port
 EXPOSE 8001
 
-# Start the application
+# Start the application d
 ENTRYPOINT ["sh", "docker-entrypoint.sh"]
 
