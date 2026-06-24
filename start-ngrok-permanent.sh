@@ -12,7 +12,7 @@ if ! command -v ngrok &> /dev/null; then
     exit 1
 fi
 
-# Check if frontend is running
+# Check if frontend is running 
 if ! curl -s http://localhost:3001 > /dev/null; then
     echo "⚠️  Warning: Frontend doesn't seem to be running on localhost:3001"
     echo "   Make sure to start the application first with: ./start.sh"
